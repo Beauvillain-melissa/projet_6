@@ -4,14 +4,21 @@ const mongoose = require('mongoose');
 const path = require ('path');
 
 const Utilisateur = require('./models/utilisateur');
-const sauce = require('./models/sauce');
+const Sauce = require('./models/sauce');
 
+const stuffRoutes = require('./routes/stuff');
+const userRoutes = require('./routes/utilisateurs');
+
+
+
+const multer = require('./middleware/multer-config');
 
 mongoose.connect('mongodb+srv://melissa:beauvillain@cluster0.gq4y2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
+  
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
@@ -24,67 +31,40 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-
 app.use(bodyParser.json());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use ('/api/stuff',stuffRoutes);
+app.use ('/api/auth',userRoutes);
 
-//requete POST+ api signup manque hachage(inscription)
-app.post('/api/auth/signup', (req, res, next) => {    
-  delete req.body._id;
-  const thing = new Utilisateur({
-    ...req.body
+
+//POST+verb cree et enregistre nvl sauce 
+app.post('/api/sauces', multer, (req, res, next) => { 
+  const sauceObject = JSON.parse(req.body.sauce);  
+
+  const sauce = new Sauce({
+    name: sauceObject.name,
+    manufacturer: sauceObject.manufacturer,
+    description: sauceObject.description,
+    mainPepper: sauceObject.mainPepper,
+    imageUrl: `${path.join(__dirname, 'images')}/${req.file.filename}`,
+    heat: sauceObject.heat,
+    likes:0,
+    dislikes:0,
+    usersLiked:[],
+    usersDisliked:[],
   });
+
   thing.save()
     .then(() => res.status(201).json({ message: 'Utilisateur enregistré !' }))
     .catch(error => res.status(400).json({ error }));
 });
-//-------------------------------------------------------------------------------------------------------------------------------------
-//requete POST +api login
-app.post('/api/auth/login', (req, res, next) => {
-    //shéma de données pour la base de données    
-    Utilisateur.findOne({ email: req.body.email, password: req.body.password })
-    .then(utilisateur => {
-      if(utilisateur != null) {
-        res.status(200).json(utilisateur);
-      } else {
-        res.status(404).json({ message: 'Utilisateur non trouvé !' });
-      }
-      
-    })
-    .catch(error => res.status(404).json({ error }));
-  });
-//----------------------------------------------------------------------------------------------------------------------------------------------
-// GET + api retourne le tableau des sauces
-app.get('/api/sauces', (req, res, next) => {
-    sauce.find({})
-    .then(sauce => res.status(200).json(sauce))
-    .catch(error => res.status(400).json({ error }));
-});
-//-------------------------------------------------------------------------------------------------------------------------------------------
-//GET + API + renvoie LA sauce avce l'id
-app.get('/api/sauces/:id', (req, res, next) => {
-  sauce.findOne({ _id: req.params.id })
-    .then(thing => res.status(200).json(thing))
-    .catch(error => res.status(404).json({ error }));
-});
-//------------------------------------------------------------------------------------------------------------------------------------
-//POST+verb
-app.post('/api/sauces', (req, res, next) => {   
-  console.log(req);
-  console.log(req.params);
-  res.status(400).json({ });
   //delete req.body._id;
   //const thing = new Utilisateur({
    // ...req.body
   //});
-  //thing.save()
-    //.then(() => res.status(201).json({ message: 'Utilisateur enregistré !' }))
-    //.catch(error => res.status(400).json({ error }));
-});
+  
+//});
 
 
 
