@@ -40,11 +40,6 @@ app.use('/api/auth', userRoutes);
 
 
 //DELETE supprime avec id
-app.delete('/api/sauces/:id', (req, res, next) => {
-  Sauce.deleteOne({ _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Sauce supprimé !' }))
-    .catch(error => res.status(400).json({ error }));
-});
 
 app.post('/api/sauces/:id/like', (req, res,next) => {
  Sauce.AddLikes()
