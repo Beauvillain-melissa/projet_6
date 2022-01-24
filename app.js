@@ -31,18 +31,14 @@ app.use(bodyParser.json());
 
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/utilisateurs');
+const req = require('express/lib/request');
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api', stuffRoutes);
 app.use('/api/auth', userRoutes);
 
 
-//PUT mettre a jour avec id
-app.put('/api/sauces/:id', (req, res, next) => {
-  Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Sauce modifié !' }))
-    .catch(error => res.status(400).json({ error }));
-});
+
 //DELETE supprime avec id
 app.delete('/api/sauces/:id', (req, res, next) => {
   Sauce.deleteOne({ _id: req.params.id })
@@ -50,7 +46,10 @@ app.delete('/api/sauces/:id', (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 });
 
-
-
+app.post('/api/sauces/:id/like', (req, res,next) => {
+ Sauce.AddLikes()
+  .then(() => res.status(200).json({ message: ' Likes ajoutées !' }))
+  .catch(error => res.status(400).json({ error }));
+});
 
 module.exports = app;
