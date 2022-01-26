@@ -1,4 +1,5 @@
 const express = require('express');
+const sauce = require('../models/sauce');
 const Sauce = require('../models/sauce');
 
 exports.getAllSauce = (req, res, next) => {
@@ -77,19 +78,59 @@ exports.deleteOne = (req, res, next) => {
 };
 
 exports.addLikes = (req, res, next) => {
-  let sauceObject = null;
-  console.log(req.body);
-  res.status(400).json({});
-  // Sauce.updateOne(
-  //   { _id: req.params.id }, {
-  //   userId: sauceObject.userId,
-  //   name: sauceObject.name,
-  //   manufacturer: sauceObject.manufacturer,
-  //   description: sauceObject.description,
-  //   mainPepper: sauceObject.mainPepper,
-  //   heat: sauceObject.heat
-  // }
-  // )
-  //   .then(() => res.status(200).json({ message: 'Sauce modifié !' }))
-  //   .catch(error => res.status(400).json({ error }));
+  
+  Sauce.findOne({ _id: req.params.id })
+    .then(sauce => {
+      if (req.body.like === 1) {
+        sauce.usersLiked.push(req.body.userId);
+        Sauce.updateOne(
+          {_id: req.params.id }, {
+            usersLiked: sauce.usersLiked,
+            likes: sauce.likes + 1
+          }
+        ).then(() => res.status(200).json({ message: 'Sauce likée !' }))
+        .catch(error => res.status(400).json({ error }));
+      } else {
+        const index = sauce.usersLiked.indexOf(req.body.usersLiked);
+        sauce.usersLiked.splice(index, 1);
+        Sauce.updateOne(
+          {_id: req.params.id }, {
+            usersLiked: sauce.usersLiked,
+            likes: sauce.likes - 1
+          }
+        ).then(() => res.status(200).json({ message: 'Sauce supprimée !' }))
+        .catch(error => res.status(400).json({ error }));
+      }
+    
+    })
+    .catch(error => res.status(404).json({ error }));
+};
+
+exports.addDislike = (req, res, next) => {
+  
+  Sauce.findOne({ _id: req.params.id })
+    .then(sauce => {
+      if (req.body.like === 1) {
+        sauce.usersLiked.push(req.body.userId);
+        Sauce.updateOne(
+          {_id: req.params.id }, {
+            usersLiked: sauce.usersLiked,
+            likes: sauce.likes + 1
+          }
+        ).then(() => res.status(200).json({ message: 'Sauce likée !' }))
+        .catch(error => res.status(400).json({ error }));
+      } else {
+        const index = sauce.usersLiked.indexOf(req.body.usersLiked);
+        sauce.usersLiked.splice(index, 1);
+        Sauce.updateOne(
+          {_id: req.params.id }, {
+            usersLiked: sauce.usersLiked,
+            likes: sauce.likes - 1
+          }
+        ).then(() => res.status(200).json({ message: 'Sauce supprimée !' }))
+        .catch(error => res.status(400).json({ error }));
+      }
+    
+    })
+    .catch(error => res.status(404).json({ error }));
 };

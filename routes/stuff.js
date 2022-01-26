@@ -11,6 +11,7 @@ const multer = require('../middleware/multer-config');
   router.post( '/sauces', multer, stuffCtrl.postCreatSauce);
   router.put('/sauces/:id', multer, stuffCtrl.updateSauce);
   router.post('/sauces/:id/like',multer,stuffCtrl.addLikes);
+  router.post('/sauces/:id/dislikes',multer,stuffCtrl.addDislike);
   router.delete('/sauces/:id',multer,stuffCtrl.deleteOne);
  
 
