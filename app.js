@@ -31,20 +31,9 @@ app.use(bodyParser.json());
 
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/utilisateurs');
-const req = require('express/lib/request');
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api', stuffRoutes);
 app.use('/api/auth', userRoutes);
-
-
-
-//DELETE supprime avec id
-
-app.post('/api/sauces/:id/like', (req, res,next) => {
- Sauce.AddLikes()
-  .then(() => res.status(200).json({ message: ' Likes ajoutées !' }))
-  .catch(error => res.status(400).json({ error }));
-});
 
 module.exports = app;
